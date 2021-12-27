@@ -10,6 +10,7 @@ import {
   reportGreetings,
 } from './hello_world';
 
+
 async function main() {
   console.log("Let's say hello to a Solana account...");
 
@@ -23,7 +24,8 @@ async function main() {
   await checkProgram();
 
   // Say hello to an account
-  await sayHello();
+  const msg = "secret message";
+  await sayHello(msg);
 
   // Find out how many times that account has been greeted
   await reportGreetings();

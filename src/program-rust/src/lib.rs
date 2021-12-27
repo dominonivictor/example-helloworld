@@ -1,4 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
+
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint,
@@ -8,12 +9,25 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
+
 /// Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct GreetingAccount {
     /// number of greetings
-    pub counter: u32,
+    pub msg: String,
 }
+
+//pub trait Stuff: Sized + BorshSerialize + BorshDeserialize {
+//    fn pack(&self, data: &mut [u8]){
+//        let encoded = self.try_to_vec().unwrap();
+//        data[..encoded.len()].copy_from_slice(&encoded);
+//    }
+//    fn unpack(src: &[u8]) -> Result<Self, ProgramError>{
+//        Self::try_from_slice(src).map_err(|_| ProgramError::InvalidAccountData)
+//    }
+//}
+
+//impl Stuff for GreetingAccount {}
 
 // Declare and export the program's entrypoint
 entrypoint!(process_instruction);
@@ -22,28 +36,35 @@ entrypoint!(process_instruction);
 pub fn process_instruction(
     program_id: &Pubkey, // Public key of the account the hello world program was loaded into
     accounts: &[AccountInfo], // The account to say hello to
-    _instruction_data: &[u8], // Ignored, all helloworld instructions are hellos
+    instruction_data: &[u8], // Ignored, all helloworld instructions are hellos
 ) -> ProgramResult {
     msg!("Hello World Rust program entrypoint");
 
     // Iterating accounts is safer then indexing
     let accounts_iter = &mut accounts.iter();
-
     // Get the account to say hello to
     let account = next_account_info(accounts_iter)?;
-
     // The account must be owned by the program in order to modify its data
     if account.owner != program_id {
         msg!("Greeted account does not have the correct program id");
         return Err(ProgramError::IncorrectProgramId);
     }
-
+    msg!("Account is {:?}", account); 
+    // getting stuff from instruction data
+    let data = &mut &mut account.data.borrow_mut();
+    msg!("Data: {:?}", data);
+    let greeting_account = GreetingAccount::try_from_slice(&data).unwrap();
+    msg!("Greeting was: {}, instruction_data_len is: {}", greeting_account.msg, instruction_data.len());
     // Increment and store the number of times the account has been greeted
-    let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
-    greeting_account.counter += 1;
-    greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
+    //let mut greeting_account: GreetingAccount = GreetingAccount::try_from_slice(&account.data.borrow())?;
+    //greeting_account.counter += 1;
+    //msg!("Greeting Acc counter: {}", greeting_account.counter);
+    let data = &mut &mut account.data.borrow_mut();
+    msg!("data len: {}", data.len());
+    //greeting_account.serialize(data[..])?;
+    data[..instruction_data.len()].copy_from_slice(&instruction_data);
 
-    msg!("Greeted {} time(s)!", greeting_account.counter);
+    msg!("Greeted {:?} time(s)!", greeting_account);
 
     Ok(())
 }
