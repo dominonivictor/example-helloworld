@@ -60,10 +60,10 @@ const PROGRAM_KEYPAIR_PATH = path.join(PROGRAM_PATH, 'helloworld-keypair.json');
  * The state of a greeting account managed by the hello world program
  */
 class GreetingAccount {
-  msg = ""
-  constructor(fields: {msg: string} | undefined = undefined) {
+  txt = ""
+  constructor(fields: {txt: string} | undefined = undefined) {
     if (fields) {
-      this.msg = fields.msg;
+      this.txt = fields.txt;
     }
   }
 }
@@ -72,14 +72,14 @@ class GreetingAccount {
  * Borsh schema definition for greeting accounts
  */
 const GreetingSchema = new Map([
-  [GreetingAccount, {kind: 'struct', fields: [['msg', 'String']]}],
+  [GreetingAccount, {kind: 'struct', fields: [['txt', 'String']]}],
 ]);
 
 /**
  * The expected size of each greeting account.
  */
 const greet = new GreetingAccount();
-greet.msg = "secret message";
+greet.txt = "secret message";
 const GREETING_SIZE = borsh.serialize(
   GreetingSchema,
   greet,
@@ -201,10 +201,10 @@ export async function checkProgram(): Promise<void> {
 /**
  * Say hello
  */
-export async function sayHello(msg: string): Promise<void> {
+export async function sayHello(txt: string): Promise<void> {
   console.log('Saying hello to', greetedPubkey.toBase58());
   const greeting = new GreetingAccount();
-  greeting.msg = msg;
+  greeting.txt = txt;
   const instruction = new TransactionInstruction({
     keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
     programId,

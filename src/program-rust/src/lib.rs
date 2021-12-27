@@ -13,8 +13,7 @@ use solana_program::{
 /// Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct GreetingAccount {
-    /// number of greetings
-    pub msg: String,
+    pub txt: String,
 }
 
 //pub trait Stuff: Sized + BorshSerialize + BorshDeserialize {
@@ -49,22 +48,24 @@ pub fn process_instruction(
         msg!("Greeted account does not have the correct program id");
         return Err(ProgramError::IncorrectProgramId);
     }
+
     msg!("Account is {:?}", account); 
     // getting stuff from instruction data
-    let data = &mut &mut account.data.borrow_mut();
-    msg!("Data: {:?}", data);
-    let greeting_account = GreetingAccount::try_from_slice(&data).unwrap();
-    msg!("Greeting was: {}, instruction_data_len is: {}", greeting_account.msg, instruction_data.len());
+
+    // THIS IS GIVING SIZE ERROR
+    let new_greeting = GreetingAccount::try_from_slice(&instruction_data);
+    msg!("Greeting was: {:?}, instruction_data_len is: {}", new_greeting, instruction_data.len());
     // Increment and store the number of times the account has been greeted
-    //let mut greeting_account: GreetingAccount = GreetingAccount::try_from_slice(&account.data.borrow())?;
-    //greeting_account.counter += 1;
-    //msg!("Greeting Acc counter: {}", greeting_account.counter);
+    //let mut new_greeting: GreetingAccount = GreetingAccount::try_from_slice(&account.data.borrow())?;
+    //new_greeting.counter += 1;
+    //msg!("Greeting Acc counter: {}", new_greeting.counter);
     let data = &mut &mut account.data.borrow_mut();
+    msg!("Data: {:?}", &data);
     msg!("data len: {}", data.len());
-    //greeting_account.serialize(data[..])?;
+    //new_greeting.serialize(data[..])?;
     data[..instruction_data.len()].copy_from_slice(&instruction_data);
 
-    msg!("Greeted {:?} time(s)!", greeting_account);
+    msg!("Greeted {:?} time(s)!", new_greeting);
 
     Ok(())
 }

@@ -24,7 +24,7 @@ async function main() {
   await checkProgram();
 
   // Say hello to an account
-  const msg = "secret message";
+  const msg = "vvvvvv  vvvvvv";
   await sayHello(msg);
 
   // Find out how many times that account has been greeted
